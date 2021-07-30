@@ -1,6 +1,6 @@
 import "./App.css";
 import React from "react";
-import { Component } from "react";
+// import { Component } from "react";
 import { render } from "react-dom";
 import Board from './Board'
 import Game from './Game'
