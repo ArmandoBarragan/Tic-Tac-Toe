@@ -1,0 +1,39 @@
+.square {
+  min-width: 10em;
+  min-height: 10em;
+  max-width: 10em;
+  max-height: 10em;
+  background-color: white;
+  border: solid;
+  border-width: 1px;
+  border-color: gray;
+  font-size: 20px;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  margin: 0px;
+}
+
+.board {
+  display: flex;
+  flex-direction: column;
+}
+
+#root {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: lightgray;
+  min-height: 100vh;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    min-height: 100%;
+    margin: 0px;
+}
