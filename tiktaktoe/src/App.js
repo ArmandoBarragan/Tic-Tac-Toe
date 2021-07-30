@@ -10,7 +10,8 @@ let game = new Game()
 class App extends React.Component {
   render() {
     return (
-      <div className="board">
+      <div className="game">
+        <h1>{game.message}</h1>
         <Board game={game} ></Board>
       </div>
     );

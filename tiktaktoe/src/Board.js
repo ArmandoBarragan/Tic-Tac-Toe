@@ -15,21 +15,23 @@ class Box extends Component {
     let position = this.id;
     let player;
 
-    if (!this.selected) {
+    if (!this.selected && this.game.playable) {
       if (this.game.crossTurn) {
         this.player = "x";
         player = 1;
         this.game.crossTurn = false;
       } else {
         this.player = "o";
-        player = -1;
+        player = 2;
         this.game.crossTurn = true;
       }
 
       this.game.positions[position] = player;
       this.selected = true;
       this.forceUpdate();
-      this.game.confirmWinner(position, player);
+      if (this.game.playerWon(position, player)) {
+          this.game.finishGame(player);
+      }
     }
   }
 

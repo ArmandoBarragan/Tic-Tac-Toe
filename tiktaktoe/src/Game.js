@@ -11,6 +11,10 @@
 class Game {
   constructor() {
     this.crossTurn = false; //First the circle, then the cross
+    this.turnsLeft = 9;
+    this.message = "Tic Tac Toe!";
+    this.playable = true;
+
     this.positions = {
       0: 0,
       1: 0,
@@ -22,25 +26,33 @@ class Game {
       7: 0,
       8: 0,
     };
-    this.turnsLeft = 8;
   }
-  confirmWinner(selectedPosition, player) {
+
+  finishGame(winner) {
+    if (winner === 0) {
+      this.message = "It's a tie!";
+    } else {
+        this.message = `Player ${winner} has won!`
+    }
+    this.playable = false;
+  }
+
+  playerWon(selectedPosition, player) {
     this.turnsLeft--;
     let adding;
 
     for (let i = selectedPosition - 4; i < selectedPosition + 4; i++) {
       if (this.positions[i] === player && i !== selectedPosition) {
-        console.log("player" + player);
-        console.log("matching player" + this.positions[i]);
-        console.log("player position" + selectedPosition);
-        console.log("match position" + i);
         adding = i - selectedPosition;
         if (this.positions[i + adding] === player) {
-          console.log("heey");
           return true;
         }
       }
     }
+    if (this.turnsLeft === 0) {
+      this.finishGame(0);//0 is for tie
+    }
+    return false;
   }
 }
 
