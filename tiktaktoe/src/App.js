@@ -3,7 +3,6 @@ import React from "react";
 // import { Component } from "react";
 import { render } from "react-dom";
 import { Board } from "./Board";
-import Game from "./Game";
 
 class App extends React.Component {
   constructor(props) {
@@ -13,10 +12,12 @@ class App extends React.Component {
     this.playable = true;
     this.state = {
       message: "Tic Tac Toe!",
-    };
+      board: <Board game={this}/>
+    }
   }
   endTurn() {
     this.turnsLeft--;
+    console.log(this.turnsLeft)
     if (this.turnsLeft === 0) {
       this.finishGame("");
     } else {
@@ -34,14 +35,28 @@ class App extends React.Component {
     } else {
       message = `Player ${winner} has won!`;
     }
-    this.setState({ message: message });
+    this.setState({message: message});
     this.playable = false;
+  }
+  reset(){
+    this.crossTurn = false; //First the circle, then the cross
+    this.turnsLeft = 9;
+    this.playable = true;
+
+    this.setState({
+      message: "Tic Tac Toe!",
+      board: <Board game={this}/>
+    });
   }
   render() {
     return (
       <div className="game">
         <h1>{this.state.message}</h1>
-        <Board game={this}></Board>
+        {this.state.board}
+        <button className="startAgain" onClick={()=>{
+          this.reset = this.reset.bind(this);
+          this.reset();
+        }}>Start again</button>
       </div>
     );
   }

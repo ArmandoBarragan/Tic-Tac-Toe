@@ -16,7 +16,7 @@ class Box extends Component {
   setSelected() {
     let player;
 
-    if (!this.selected) {
+    if (!this.selected && this.game.playable) {
       if (this.game.crossTurn) {
         player = "x";
         this.setState({ player: player });
