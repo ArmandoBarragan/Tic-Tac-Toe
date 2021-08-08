@@ -3,42 +3,42 @@ import { React, Component } from "react";
 class Box extends Component {
   constructor(props) {
     super(props);
-    this.setSelected = this.setSelected.bind(this);
-    this.id = props.id;
-    this.key = props.id;
     this.selected = false;
-    this.game = props.game;
+    this.board = props.board;
+    this.x = props.x;
+    this.y = props.y;
     this.player = "";
+    this.game = props.game;
+    this.state = { player: this.player };
+    this.setSelected = this.setSelected.bind(this);
   }
 
   setSelected() {
-    let position = this.id;
     let player;
 
-    if (!this.selected && this.game.playable) {
+    if (!this.selected) {
       if (this.game.crossTurn) {
-        this.player = "x";
-        player = 1;
+        player = "x";
+        this.setState({ player: player });
         this.game.crossTurn = false;
       } else {
-        this.player = "o";
-        player = 2;
+        player = "o";
+        this.setState({ player: player });
         this.game.crossTurn = true;
       }
 
-      this.game.positions[position] = player;
+      this.board.playerMattress[this.x][this.y] = player;
+      this.player = player;
+
       this.selected = true;
-      this.forceUpdate();
-      if (this.game.playerWon(position, player)) {
-          this.game.finishGame(player);
-      }
+      this.board.checkIfWinner(this.x, this.y);
     }
   }
 
   render() {
     return (
       <button className="square" onClick={this.setSelected} key={this.id}>
-        {this.player}
+        {this.state.player}
       </button>
     );
   }
@@ -47,49 +47,126 @@ class Box extends Component {
 class Board extends Component {
   constructor(props) {
     super(props);
-    let game = props.game;
-    this.game = game;
-
-    this.firstRow = [
-      <Box key={0} id={0} game={game} />,
-      <Box key={1} id={1} game={game} />,
-      <Box key={2} id={2} game={game} />,
-    ];
-
-    this.secondRow = [
-      <Box key={3} id={3} game={game} />,
-      <Box key={4} id={4} game={game} />,
-      <Box key={5} id={5} game={game} />,
-    ];
-
-    this.thirdRow = [
-      <Box key={6} id={6} game={game} />,
-      <Box key={7} id={7} game={game} />,
-      <Box key={8} id={8} game={game} />,
-    ];
+    this.game = props.game;
+    this.createBoxes();
+    this.checkIfWinner = this.checkIfWinner.bind(this);
   }
 
   render() {
     return (
       <div className="board" key="board">
         <div className="row" key="firstRow">
-          {this.firstRow.map(function (box) {
-            return box;
-          })}
+          {this.boxes[0]}
         </div>
         <div className="row" key="secondRow">
-          {this.secondRow.map(function (box) {
-            return box;
-          })}
+          {this.boxes[1]}
         </div>
         <div className="row" key="thirdRow">
-          {this.thirdRow.map(function (box) {
-            return box;
-          })}
+          {this.boxes[2]}
         </div>
       </div>
     );
   }
+
+  createBoxes() {
+    let counter = 0;
+    let boxes = [];
+    let playerMattress =
+      []; /*A mattress a part from the boxes to represent the player that own
+    each box*/
+    let box;
+    let row;
+    let playerRow;
+
+    for (let i = 0; i < 3; i++) {
+      row = [];
+      playerRow = [];
+
+      for (let j = 0; j < 3; j++) {
+        counter++;
+        box = {
+          key: counter,
+          id: counter,
+          x: j,
+          y: i,
+          game: this.game,
+          board: this,
+        };
+        playerRow.push("");
+        row.push(<Box {...box}></Box>);
+      }
+      playerMattress.push(playerRow);
+      boxes.push(row);
+    }
+
+    this.playerMattress = playerMattress;
+    this.boxes = boxes;
+  }
+
+  checkIfWinner(selectedX, selectedY) {
+    let player = this.playerMattress[selectedX][selectedY];
+    let range = {
+      min: -1,
+      max: 2,
+    };
+    let position = {
+      x: selectedX,
+      y: selectedY,
+    };
+
+    //get the position of the match relative to the selected box,
+    //if the match is at 1,1 and the selected is at 2,2, the variable will be {x:1,y:1}
+    let secondMatch = this.searchForMatches(range, position);
+
+    if (secondMatch !== false) {
+      if (this.playerMattress[secondMatch.x][secondMatch.y] === player) {
+        console.log("war is won");
+        this.game.finishGame(player);
+      }
+    }
+  }
+
+  searchForMatches(range, position) {
+    for (let i = range.min; i < range.max; i++) {
+      for (let j = range.min; j < range.max; j++) {
+        if (
+          position.x + i < 0 ||
+          position.x + i > 2 ||
+          position.y + j < 0 ||
+          position.y + j > 2 ||
+          (i === 0 && j === 0)
+        ) {
+          continue;
+        } else {
+          let loopMoment = {i: i, j: j};
+          let secondMatch = this.getSecondMatch(position, loopMoment);
+          
+          if (secondMatch !== false){
+            return secondMatch;
+          }
+        }
+      }
+    }
+    return false;
+  }
+  getSecondMatch(position, loopMoment) {
+    let nextX = position.x + loopMoment.i;
+    let nextY = position.y + loopMoment.j;
+
+    if (
+      this.playerMattress[nextX][nextY] ===
+      this.playerMattress[position.x][position.y]
+    ) {
+      let secondX = nextX + loopMoment.i;
+      let secondY = nextY + loopMoment.j;
+
+      if (secondX < 3 && secondX > -1 && secondY < 3 && secondY > -1) {
+        let secondMatch = { x: nextX + loopMoment.i, y: nextY + loopMoment.j };
+        return secondMatch;
+      }
+    }
+    return false;
+  }
 }
 
-export default Board;
+export { Box, Board };
