@@ -2,17 +2,34 @@ import "./App.css";
 import React from "react";
 // import { Component } from "react";
 import { render } from "react-dom";
-import {Board} from './Board'
-import Game from './Game'
-
-let game = new Game()
+import { Board } from "./Board";
+import Game from "./Game";
 
 class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.crossTurn = false; //First the circle, then the cross
+    this.turnsLeft = 9;
+    this.playable = true;
+    this.state = {
+      message: "Tic Tac Toe!",
+    };
+  }
+  finishGame(winner) {
+    let message;
+    if (winner === "") {
+      message = "It's a tie!";
+    } else {
+      message = `Player ${winner} has won!`;
+    }
+    this.setState({message: message})
+    this.playable = false;
+  }
   render() {
     return (
       <div className="game">
-        <h1>{game.message}</h1>
-        <Board game={game} ></Board>
+        <h1>{this.state.message}</h1>
+        <Board game={this}></Board>
       </div>
     );
   }

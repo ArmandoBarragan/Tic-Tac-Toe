@@ -9,37 +9,12 @@ class Game {
   }
 
   finishGame(winner) {
-    if (winner === 0) {
+    if (winner === "") {
       this.message = "It's a tie!";
     } else {
         this.message = `Player ${winner} has won!`
     }
     this.playable = false;
-  }
-
-  playerWon(selectedPosition, player) {
-    this.turnsLeft--;
-    let adding;
-    let selectedBox = this.boxes[selectedPosition];
-    this.searchMatches(selectedPosition, player);
-    // for (let i = selectedPosition - 4; i < selectedPosition + 4; i++) {
-    //   if (this.positions[i] === player && i !== selectedPosition) {
-    //     adding = i - selectedPosition;
-    //     nextPosition = i + adding;
-    //     if (this.positions[nextPosition] === player) {
-    //         if (this.boxes[nextPosition].x ){
-    //             return true;
-    //         }
-    //     }
-    //   }
-    // }
-
-    if (this.turnsLeft === 0) {
-      this.finishGame(0);//0 is for tie
-    }
-  }
-  searchMatches(selectedPosition, player){
-
   }
 }
 
