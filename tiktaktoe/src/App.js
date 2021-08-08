@@ -15,6 +15,18 @@ class App extends React.Component {
       message: "Tic Tac Toe!",
     };
   }
+  endTurn() {
+    this.turnsLeft--;
+    if (this.turnsLeft === 0) {
+      this.finishGame("");
+    } else {
+      if (this.crossTurn) {
+        this.crossTurn = false;
+      } else {
+        this.crossTurn = true;
+      }
+    }
+  }
   finishGame(winner) {
     let message;
     if (winner === "") {
@@ -22,7 +34,7 @@ class App extends React.Component {
     } else {
       message = `Player ${winner} has won!`;
     }
-    this.setState({message: message})
+    this.setState({ message: message });
     this.playable = false;
   }
   render() {

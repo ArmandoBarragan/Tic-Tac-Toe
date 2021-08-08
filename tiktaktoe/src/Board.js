@@ -20,11 +20,9 @@ class Box extends Component {
       if (this.game.crossTurn) {
         player = "x";
         this.setState({ player: player });
-        this.game.crossTurn = false;
       } else {
         player = "o";
         this.setState({ player: player });
-        this.game.crossTurn = true;
       }
 
       this.board.playerMattress[this.x][this.y] = player;
@@ -32,6 +30,7 @@ class Box extends Component {
 
       this.selected = true;
       this.board.checkIfWinner(this.x, this.y);
+      this.game.endTurn()
     }
   }
 
@@ -124,6 +123,7 @@ class Board extends Component {
         this.game.finishGame(player);
       }
     }
+
   }
 
   searchForMatches(range, position) {
