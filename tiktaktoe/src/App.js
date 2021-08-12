@@ -38,7 +38,7 @@ class App extends React.Component {
     this.setState({message: message});
     this.playable = false;
   }
-  reset(){
+  reset(e){
     this.crossTurn = false; //First the circle, then the cross
     this.turnsLeft = 9;
     this.playable = true;
@@ -48,15 +48,16 @@ class App extends React.Component {
       board: <Board game={this}/>
     });
     this.forceUpdate();
+    e.preventDefault()
   }
   render() {
     return (
       <div className="game">
         <h1>{this.state.message}</h1>
         {this.state.board}
-        <button className="startAgain" onClick={()=>{
+        <button className="startAgain" onClick={(e)=>{
           this.reset = this.reset.bind(this);
-          this.reset();
+          this.reset(e);
         }}>Start again</button>
       </div>
     );
