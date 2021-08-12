@@ -64,8 +64,8 @@ class Board extends Component {
 
   checkIfWinner(box) {
     let player = box.player;
-    //get the box of the match relative to the selected box,
-    //if the match is at 1,1 and the selected is at 2,2, the variable will be {x:1,y:1}
+    //get the second match's position to check if the player of that 
+    //box is the same as the one that selected.
     let secondMatch = this.searchForMatches(box);
 
     if (secondMatch !== false) {
@@ -81,6 +81,7 @@ class Board extends Component {
     for (let i = -1; i <= 1; i++) {
       for (let j = -1; j <= 1; j++) {
         let loopMoment = { i: i, j: j };
+        //if the position is not a box, skip
         if (
           box.x + i < 0 ||
           box.x + i > 2 ||
@@ -103,11 +104,12 @@ class Board extends Component {
     let nextX = box.x + loopMoment.i;
     let nextY = box.y + loopMoment.j;
     let nextBox = this.state.boxes[nextY][nextX];
-
+    
     if (nextBox.player === box.player) {
       let secondX = nextX + loopMoment.i;
       let secondY = nextY + loopMoment.j;
-
+      //Get the next match based of the relative position of the first one from
+      //the original 
       if (secondX < 3 && secondX > -1 && secondY < 3 && secondY > -1) {
         let secondMatch = { x: secondX, y: secondY };
         return secondMatch;
