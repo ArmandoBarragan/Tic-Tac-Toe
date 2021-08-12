@@ -10,9 +10,10 @@ class App extends React.Component {
     this.crossTurn = false; //First the circle, then the cross
     this.turnsLeft = 9;
     this.playable = true;
+
     this.state = {
       message: "Tic Tac Toe!",
-      board: <Board game={this}/>
+      board: ()=><Board game={this}/>
     }
   }
   endTurn() {
@@ -38,26 +39,26 @@ class App extends React.Component {
     this.setState({message: message});
     this.playable = false;
   }
-  reset(e){
+  reset(){
     this.crossTurn = false; //First the circle, then the cross
     this.turnsLeft = 9;
     this.playable = true;
 
     this.setState({
       message: "Tic Tac Toe!",
-      board: <Board game={this}/>
+      board: ()=><Board game={this}/>
     });
     this.forceUpdate();
-    e.preventDefault()
   }
   render() {
+    let ActiveBoard = this.state.board;
     return (
       <div className="game">
         <h1>{this.state.message}</h1>
-        {this.state.board}
-        <button className="startAgain" onClick={(e)=>{
+        <ActiveBoard></ActiveBoard>
+        <button className="startAgain" onClick={()=>{
           this.reset = this.reset.bind(this);
-          this.reset(e);
+          this.reset();
         }}>Start again</button>
       </div>
     );
