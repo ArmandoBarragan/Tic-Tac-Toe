@@ -1,48 +1,5 @@
 import { React, Component } from "react";
 
-class Box extends Component {
-  constructor(props) {
-    super(props);
-    this.selected = false;
-    this.board = props.board;
-    this.x = props.x;
-    this.y = props.y;
-    this.player = "";
-    this.game = props.game;
-    this.state = { player: this.player };
-    this.setSelected = this.setSelected.bind(this);
-  }
-
-  setSelected() {
-    let player;
-
-    if (!this.selected && this.game.playable) {
-      if (this.game.crossTurn) {
-        player = "x";
-        this.setState({ player: player });
-      } else {
-        player = "o";
-        this.setState({ player: player });
-      }
-
-      this.board.playerMattress[this.x][this.y] = player;
-      this.player = player;
-
-      this.selected = true;
-      this.board.checkIfWinner(this.x, this.y);
-      this.game.endTurn()
-    }
-  }
-
-  render() {
-    return (
-      <button className="square" onClick={this.setSelected} key={this.id}>
-        {this.state.player}
-      </button>
-    );
-  }
-}
-
 class Board extends Component {
   constructor(props) {
     super(props);
@@ -50,98 +7,91 @@ class Board extends Component {
     this.createBoxes();
     this.checkIfWinner = this.checkIfWinner.bind(this);
   }
-
-  render() {
+  renderBox(box) {
     return (
-      <div className="board" key="board">
-        <div className="row" key="firstRow">
-          {this.boxes[0]}
-        </div>
-        <div className="row" key="secondRow">
-          {this.boxes[1]}
-        </div>
-        <div className="row" key="thirdRow">
-          {this.boxes[2]}
-        </div>
-      </div>
+      <button
+        onClick={() => {
+          this.setSelected(box);
+        }}
+        className="square"
+        key={box.key}
+      >
+        {box.player}
+      </button>
     );
   }
 
+  setSelected(box) {
+    if (!box.selected) {
+      if (this.game.crossTurn) {
+        box.player = "x";
+        this.game.crossTurn = false;
+      } else {
+        box.player = "o";
+        this.game.crossTurn = true;
+      }
+      box.selected = true;
+      this.checkIfWinner(box);
+      this.forceUpdate();
+    }
+  }
   createBoxes() {
-    let counter = 0;
     let boxes = [];
-    let playerMattress =
-      []; /*A mattress a part from the boxes to represent the player that own
-    each box*/
+    let counter = 0;
     let box;
     let row;
-    let playerRow;
 
     for (let i = 0; i < 3; i++) {
       row = [];
-      playerRow = [];
 
       for (let j = 0; j < 3; j++) {
         counter++;
         box = {
-          key: counter,
-          id: counter,
           x: j,
           y: i,
-          game: this.game,
-          board: this,
+          player: "",
+          selected: false,
+          key: counter,
         };
-        playerRow.push("");
-        row.push(<Box {...box}></Box>);
+        row.push(box);
       }
-      playerMattress.push(playerRow);
       boxes.push(row);
     }
-
-    this.playerMattress = playerMattress;
-    this.boxes = boxes;
+    this.state = {
+      boxes: boxes,
+    };
   }
 
-  checkIfWinner(selectedX, selectedY) {
-    let player = this.playerMattress[selectedX][selectedY];
-    let range = {
-      min: -1,
-      max: 2,
-    };
-    let position = {
-      x: selectedX,
-      y: selectedY,
-    };
-
-    //get the position of the match relative to the selected box,
+  checkIfWinner(box) {
+    let player = box.player;
+    //get the box of the match relative to the selected box,
     //if the match is at 1,1 and the selected is at 2,2, the variable will be {x:1,y:1}
-    let secondMatch = this.searchForMatches(range, position);
+    let secondMatch = this.searchForMatches(box);
 
     if (secondMatch !== false) {
-      if (this.playerMattress[secondMatch.x][secondMatch.y] === player) {
+      let finalBoxMatch = this.state.boxes[secondMatch.y][secondMatch.x]
+      if (finalBoxMatch.player === player) {
         console.log("war is won");
         this.game.finishGame(player);
       }
     }
-
   }
 
-  searchForMatches(range, position) {
-    for (let i = range.min; i < range.max; i++) {
-      for (let j = range.min; j < range.max; j++) {
+  searchForMatches(box) {
+    for (let i = -1; i <= 1; i++) {
+      for (let j = -1; j <= 1; j++) {
+        let loopMoment = { i: i, j: j };
         if (
-          position.x + i < 0 ||
-          position.x + i > 2 ||
-          position.y + j < 0 ||
-          position.y + j > 2 ||
+          box.x + i < 0 ||
+          box.x + i > 2 ||
+          box.y + j < 0 ||
+          box.y + j > 2 ||
           (i === 0 && j === 0)
         ) {
           continue;
         } else {
-          let loopMoment = {i: i, j: j};
-          let secondMatch = this.getSecondMatch(position, loopMoment);
-          
-          if (secondMatch !== false){
+          let secondMatch = this.getSecondMatch(box, loopMoment);
+          if (secondMatch !== false) {
             return secondMatch;
           }
         }
@@ -149,24 +99,43 @@ class Board extends Component {
     }
     return false;
   }
-  getSecondMatch(position, loopMoment) {
-    let nextX = position.x + loopMoment.i;
-    let nextY = position.y + loopMoment.j;
+  getSecondMatch(box, loopMoment) {
+    let nextX = box.x + loopMoment.i;
+    let nextY = box.y + loopMoment.j;
+    let nextBox = this.state.boxes[nextY][nextX];
 
-    if (
-      this.playerMattress[nextX][nextY] ===
-      this.playerMattress[position.x][position.y]
-    ) {
+    if (nextBox.player === box.player) {
       let secondX = nextX + loopMoment.i;
       let secondY = nextY + loopMoment.j;
 
       if (secondX < 3 && secondX > -1 && secondY < 3 && secondY > -1) {
-        let secondMatch = { x: nextX + loopMoment.i, y: nextY + loopMoment.j };
+        let secondMatch = { x: secondX, y: secondY };
         return secondMatch;
       }
     }
     return false;
   }
+  render() {
+    return (
+      <div className="board" key="board">
+        <div className="row" key="firstRow">
+          {this.state.boxes[0].map((box) => {
+            return this.renderBox(box);
+          })}
+        </div>
+        <div className="row" key="secondRow">
+          {this.state.boxes[1].map((box) => {
+            return this.renderBox(box);
+          })}
+        </div>
+        <div className="row" key="thirdRow">
+          {this.state.boxes[2].map((box) => {
+            return this.renderBox(box);
+          })}
+        </div>
+      </div>
+    );
+  }
 }
 
-export { Box, Board };
+export { Board };

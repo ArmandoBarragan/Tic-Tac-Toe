@@ -47,6 +47,7 @@ class App extends React.Component {
       message: "Tic Tac Toe!",
       board: <Board game={this}/>
     });
+    this.forceUpdate();
   }
   render() {
     return (
